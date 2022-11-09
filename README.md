@@ -1,35 +1,52 @@
-Role Name
-=========
+OPNsense: SSH
+=============
 
-A brief description of the role goes here.
+An ansible role to manage the SSH server on an opnSense firewall.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+This role requires the `lxml` python package to be installed on the host system.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+|          Variable          |  Type  |                   Description                    |
+| :------------------------: | :----: | :----------------------------------------------: |
+|    opnsense_ssh_status     |  bool  |          Enable/Disable the SSH server.          |
+|  opnsense_ssh_interfaces   | string | Comma-separated list of interfaces to listen on. |
+|     opnsense_ssh_port      |  int   |      The port number for SSH to listen on.       |
+|    opnsense_ssh_groups     | string |  Comma-separated list of groups allowed to SSH.  |
+| opnsense_ssh_password_auth |  bool  |     Enable/Disable password authentication.      |
+|  opnsense_ssh_permit_root  |  bool  |        Enable/Disable remote root logins.        |
+|  opnsense_ssh_permit_sudo  |  bool  |       Enable/Disable privilege escalation.       |
+|    opnsense_ssh_noauto     |  bool  |              Enable/Disable noauto               |
+|  opnsense_ssh_auto_logout  |  int   |     Interval in minutes before auto logout.      |
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+N/A.
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
 ```yaml
-- hosts: all
+- name: Configure SSH on all firewalls
+  hosts: opnsense
 
   roles:
-    - role: mirceanton.template
+    - role: mirceanton.opnsense_ssh
       vars:
-        foo: bar
+        opnsense_ssh_status: enabled       # enabled / disabled
+        opnsense_ssh_interfaces: lan       # comma separated list of interfaces SSH binds to
+        opnsense_ssh_port: 22              # SSH port
+        opnsense_ssh_groups: admins        # allowed groups for SSH
+        opnsense_ssh_password_auth: true   # enable / disable password based authentication
+        opnsense_ssh_permit_root: true     # enable / disable root login via SSH
+        opnsense_ssh_permit_sudo: true     # enable / disable privilege escalation
+        opnsense_ssh_noauto: true          # enable / disable noauto
+        opnsense_ssh_auto_logout: 1        # ssh auto logout in minutes
 ```
 
 License
