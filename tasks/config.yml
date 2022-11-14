@@ -1,0 +1,71 @@
+---
+- name: "{{ 'Enable' if opensense_ssh_status else 'Disable' }}"
+  community.general.xml:
+    pretty_print: true
+    path: "{{ local_file }}"
+    xpath: "{{ xpath }}/enabled"
+    value: "{{ opnsense_ssh_status }}"
+
+- name: Configure SSH
+  when: opnsense_ssh_status == "enabled"
+  block:
+    - name: Bind to interface
+      community.general.xml:
+        pretty_print: true
+        path: "{{ local_file }}"
+        xpath: "{{ xpath }}/interfaces"
+        value: "{{ opnsense_ssh_interfaces }}"
+
+    - name: Bind to port
+      community.general.xml:
+        pretty_print: true
+        path: "{{ local_file }}"
+        xpath: "{{ xpath }}/port"
+        value: "{{ opnsense_ssh_port | default('22') }}"
+
+    - name: Permit password auth
+      community.general.xml:
+        pretty_print: true
+        path: "{{ local_file }}"
+        xpath: "{{ xpath }}/passwordauth"
+        value: "{{ '1' if opnsense_ssh_password_auth else '0' }}"
+
+    - name: Permit root login
+      community.general.xml:
+        pretty_print: true
+        path: "{{ local_file }}"
+        xpath: "{{ xpath }}/permitrootlogin"
+        value: "{{ '1' if opnsense_ssh_permit_root else '0' }}"
+
+    - name: Set group
+      community.general.xml:
+        pretty_print: true
+        path: "{{ local_file }}"
+        xpath: "{{ xpath }}/group"
+        value: "{{ opnsense_ssh_groups | default('admins') }}"
+
+    # Still SSH related but somehow not under the ssh namespace?
+    - name: Set XML Path
+      ansible.builtin.set_fact:
+        xpath: /opnsense/system
+
+    - name: Set noauto
+      community.general.xml:
+        pretty_print: true
+        path: "{{ local_file }}"
+        xpath: "{{ xpath }}/noauto"
+        value: "{{ '1' if opnsense_ssh_noauto else '0' }}"
+
+    - name: Set autologout period
+      community.general.xml:
+        pretty_print: true
+        path: "{{ local_file }}"
+        xpath: "{{ xpath }}/autologout"
+        value: "{{ opnsense_ssh_auto_logout | default('1') }}"
+
+    - name: Allow sudo
+      community.general.xml:
+        pretty_print: true
+        path: "{{ local_file }}"
+        xpath: "{{ xpath }}/sudo_allow_wheel"
+        value: "{{ '1' if opnsense_ssh_permit_sudo else '0' }}"
